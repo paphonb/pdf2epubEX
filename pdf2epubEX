@@ -219,13 +219,13 @@ echo "pdf2htmlEX version: $pdf2htmlEXversion"
 
 if [ $pdf2htmlEXversion == "0.14.6" ] ; then
 
-pdf2htmlEX --embed-css 0 --embed-font 0 --embed-image 0 --embed-javascript 0 --embed-outline 0 --split-pages 1 --bg-format $imgformat --vdpi $dpi --hdpi $dpi --fit-width $hres --fit-height $vres --page-filename mybook%04d.page --css-filename mybook.css mybook.pdf
+pdf2htmlEX --embed-css 0 --embed-font 0 --embed-image 0 --embed-javascript 0 --embed-outline 0 --split-pages 1 --bg-format $imgformat --vdpi $dpi --hdpi $dpi --fit-width $hres --fit-height $vres --page-filename mybook%04d.page --css-filename mybook.css --outline-filename outline.xhtml mybook.pdf
 
 else
 
 # pdf2htmlEX: the parameter --dpi and --fit-width/fit-height are totaly independant.
 
-pdf2htmlEX --embed-css 0 --embed-font 0 --embed-image 0 --embed-javascript 0 --embed-outline 0 --split-pages 1 --bg-format $imgformat --dpi $dpi --fit-width $hres --fit-height $vres --page-filename mybook%04d.page --css-filename mybook.css mybook.pdf
+pdf2htmlEX --embed-css 0 --embed-font 0 --embed-image 0 --embed-javascript 0 --embed-outline 0 --split-pages 1 --bg-format $imgformat --dpi $dpi --fit-width $hres --fit-height $vres --page-filename mybook%04d.page --css-filename mybook.css --outline-filename outline.xhtml mybook.pdf
 
 fi
 
@@ -290,9 +290,13 @@ mv cover.png ./bookroot/OEBPS/
 
 # Create the nav.xhtm file (TOC)
 
-echo -e "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<html xmlns:epub=\"http://www.idpf.org/2007/ops\"\n   xmlns=\"http://www.w3.org/1999/xhtml\">\n<head>\n <title>$title</title>\n</head>\n<body>\n <nav epub:type=\"toc\" id=\"toc\">\n  <ol>\n    <li>\n     <a href=\"mybook0001.xhtml\">Chapter 1 Like This</a>\n    </li>\n    <li>\n     <a href=\"mybook0002.xhtml\">Chapter 2 Like This</a>\n    </li>\n  </ol>\n</nav>\n <nav epub:type=\"landmarks\">\n  <ol>\n   <li>\n     <a epub:type=\"frontmatter\" href=\"mybook0001.xhtml\">Cover</a>\n   </li>\n   <li>\n    <a epub:type=\"bodymatter\" href=\"mybook0002.xhtml\">Bodymatter</a>\n   </li>\n  </ol>\n </nav>\n <nav epub:type=\"page-list\" hidden=\"\">\n  <ol>" > ./nav
+echo -e "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<html xmlns:epub=\"http://www.idpf.org/2007/ops\"\n   xmlns=\"http://www.w3.org/1999/xhtml\">\n<head>\n <title>$title</title>\n</head>\n<body>\n <nav epub:type=\"toc\" id=\"toc\">" > ./nav
 
 cd ./bookroot/OEBPS/
+
+cat ./outline.xhtml | sed "s/<a class=\"l\" href=\"#\w*\" data-dest-detail='\\[\([0-9]*\)[^>]*>\([^<]*\)<\\/a>/<a href=\"mybook000\1.xhtml\">\2<\/a>/g; s/mybook[0-9]*\([0-9]\{4\}\).xhtml/mybook\1.xhtml/g" >> ../../nav
+echo -e "</nav>\n <nav epub:type=\"landmarks\">\n  <ol>\n   <li>\n     <a epub:type=\"frontmatter\" href=\"mybook0001.xhtml\">Cover</a>\n   </li>\n   <li>\n    <a epub:type=\"bodymatter\" href=\"mybook0002.xhtml\">Bodymatter</a>\n   </li>\n  </ol>\n </nav>\n <nav epub:type=\"page-list\" hidden=\"\">\n  <ol>" >> ../../nav
+rm ./outline.xhtml
 
 for j in *.xhtml; do
 filenumber=$(echo "$j" | sed 's/[^0-9][^0-9]*0*\([0-9][0-9]*\).*/\1/g')
