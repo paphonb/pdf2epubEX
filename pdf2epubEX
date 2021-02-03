@@ -298,9 +298,18 @@ cat ./outline.xhtml | sed "s/<a class=\"l\" href=\"#\w*\" data-dest-detail='\\[\
 echo -e "</nav>\n <nav epub:type=\"landmarks\">\n  <ol>\n   <li>\n     <a epub:type=\"frontmatter\" href=\"mybook0001.xhtml\">Cover</a>\n   </li>\n   <li>\n    <a epub:type=\"bodymatter\" href=\"mybook0002.xhtml\">Bodymatter</a>\n   </li>\n  </ol>\n </nav>\n <nav epub:type=\"page-list\" hidden=\"\">\n  <ol>" >> ../../nav
 rm ./outline.xhtml
 
-for j in *.xhtml; do
-filenumber=$(echo "$j" | sed 's/[^0-9][^0-9]*0*\([0-9][0-9]*\).*/\1/g')
-echo -e "   <li>\n    <a href=\"$j\">$filenumber</a>\n   </li>" >> ../../nav
+names=(0 $2)
+namecount=${#names[@]}
+namecount=$((namecount-1))
+
+for j in mybook*.xhtml; do
+  filenumber=$(echo "$j" | sed 's/[^0-9][^0-9]*0*\([0-9][0-9]*\).*/\1/g')
+  if [ $filenumber -le $namecount ] ; then
+    pagenumber=${names[$filenumber]}
+  else
+    pagenumber=$((filenumber-namecount))
+  fi
+  echo -e "   <li>\n    <a href=\"$j\">$pagenumber</a>\n   </li>" >> ../../nav
 done
 
 echo -e "  </ol>\n </nav>\n</body>\n</html>" >> ../../nav
